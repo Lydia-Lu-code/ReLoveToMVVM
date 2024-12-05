@@ -42,11 +42,5 @@ class ProductRepository: ProductRepositoryProtocol {
             completion(result)
         }
     }
-    
-//    func deleteProduct(id: String, completion: @escaping (Result<EmptyResponse, APIError>) -> Void) {
-//        networkService.request(endpoint: .deleteProduct(id: id), body: nil, completion: completion)
-//    }
-//    func deleteProduct(id: String, completion: @escaping (Result<Void, APIError>) -> Void) {
-//        networkService.request(endpoint: .deleteProduct(id: id), body: nil, completion: completion)
-//    }
+
 }

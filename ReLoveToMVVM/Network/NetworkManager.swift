@@ -169,3 +169,10 @@ class NetworkManager {
     }
 }
 
+
+//****
+protocol NetworkServiceProtocol {
+    func request<T: Codable>(endpoint: APIEndpoint, body: Data?, completion: @escaping (Result<T, APIError>) -> Void)
+}
+
+

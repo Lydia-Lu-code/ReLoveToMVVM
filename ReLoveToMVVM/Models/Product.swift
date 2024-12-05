@@ -7,16 +7,6 @@
 
 import Foundation
 
-enum APIError: Error {
-    case invalidURL
-    case networkError(Error)
-    case serverError(Int)
-    case decodingError
-    case noData
-    case htmlParsingError
-    case redirectRequired(String)
-}
-
 struct Product: Codable {
     let id: String
     let title: String

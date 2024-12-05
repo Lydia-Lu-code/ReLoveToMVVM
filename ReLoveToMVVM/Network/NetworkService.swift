@@ -7,10 +7,6 @@
 
 import Foundation
 
-protocol NetworkServiceProtocol {
-    func request<T: Codable>(endpoint: APIEndpoint, body: Data?, completion: @escaping (Result<T, APIError>) -> Void)
-}
-
 class NetworkService: NetworkServiceProtocol {
     static let shared = NetworkService()
     private let baseURL = "https://your-api-endpoint.com/api/v1"
@@ -92,21 +88,7 @@ class NetworkService: NetworkServiceProtocol {
     }
 
     struct EmptyResponse: Codable {}
-    
-//    func request<T: Codable>(endpoint: APIEndpoint, body: Data? = nil, completion: @escaping (Result<T, APIError>) -> Void) {
-//        guard let url = URL(string: baseURL + endpoint.path) else {
-//            completion(.failure(.invalidURL))
-//            return
-//        }
-//        
-//        var request = URLRequest(url: url)
-//        request.httpMethod = endpoint.method.rawValue
-//        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-//        request.httpBody = body
-//        
-//        let task = session.dataTask(with: request) { data, response, error in
-//            // ... 原有的錯誤處理邏輯 ...
-//        }
-//        task.resume()
-//    }
 }
+
+
+

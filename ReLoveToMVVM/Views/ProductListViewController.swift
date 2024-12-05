@@ -1,8 +1,7 @@
 import UIKit
 
 class ProductListViewController: UIViewController {
-    
-    private let viewModel = ProductListViewModel()
+
     private let activityIndicator = UIActivityIndicatorView(style: .large)
         
     private let imagePickerManager = ImagePickerManager()
@@ -26,13 +25,23 @@ class ProductListViewController: UIViewController {
         cv.translatesAutoresizingMaskIntoConstraints = false
         return cv
     }()
+
+    
+    private let viewModel: ProductListViewModel = {
+        // 使用 Mock Repository 初始化 ViewModel
+        let mockRepository = MockData.MockProductRepository()
+        return ProductListViewModel(repository: mockRepository)
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupBindings()
         setupTestButtons()
-        viewModel.addTestData()  // 測試數據
+
+        // 直接呼叫 fetchProducts 來獲取 mock 資料
+        viewModel.fetchProducts()
+
     }
     
     
@@ -99,97 +108,116 @@ class ProductListViewController: UIViewController {
     }
     
     @objc private func showAddProductAlert() {
-        let alert = UIAlertController(title: "新增商品", message: nil, preferredStyle: .alert)
-        
-        let container = UIView()
-        container.translatesAutoresizingMaskIntoConstraints = false
-        
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.image = selectedImage ?? UIImage(systemName: "photo")
-        imageView.layer.cornerRadius = 8
-        imageView.clipsToBounds = true
-        imageView.backgroundColor = .systemGray6
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.isUserInteractionEnabled = true
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(choosePhoto))
-        imageView.addGestureRecognizer(tapGesture)
-        container.addSubview(imageView)
-        imagePreviewView = imageView
-        
-        let photoButton = UIButton(type: .system)
-        photoButton.setTitle("選擇照片", for: .normal)
-        photoButton.translatesAutoresizingMaskIntoConstraints = false
-        photoButton.addTarget(self, action: #selector(choosePhoto), for: .touchUpInside)
-        container.addSubview(photoButton)
-        
-        alert.addTextField { textField in
-            textField.placeholder = "商品名稱"
-        }
-        
-        alert.addTextField { textField in
-            textField.placeholder = "價格"
-            textField.keyboardType = .numberPad
-        }
-        
-        NSLayoutConstraint.activate([
-            container.heightAnchor.constraint(equalToConstant: 160),
-            
-            imageView.topAnchor.constraint(equalTo: container.topAnchor),
-            imageView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-            imageView.widthAnchor.constraint(equalToConstant: 150),
-            imageView.heightAnchor.constraint(equalToConstant: 100),
-            
-            photoButton.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 5),
-            photoButton.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-        ])
-        
-        let containerVC = UIViewController()
-        containerVC.view = container
-        alert.setValue(containerVC, forKey: "contentViewController")
-        
-        let addAction = UIAlertAction(title: "新增", style: .default) { [weak self] _ in
-            guard let title = alert.textFields?[0].text,
-                  let priceText = alert.textFields?[1].text,
-                  let price = Double(priceText),
-                  !title.isEmpty
-            else {
-                self?.showError("請填寫完整資訊")
-                return
+        let alert = ProductAlertView.showProductAlert(
+            title: "新增商品",
+            selectedImage: selectedImage,
+            imagePreviewView: imagePreviewView,
+            onChoosePhoto: { [weak self] in
+                self?.dismiss(animated: true) {
+                    guard let self = self else { return }
+                    self.imagePickerManager.showImagePicker(from: self) { image in
+                        self.selectedImage = image
+                        DispatchQueue.main.async {
+                            self.showAddProductAlert()
+                        }
+                    }
+                }
+            },
+            onComplete: { [weak self] title, price, image in
+                let newProduct = Product(
+                    id: UUID().uuidString,
+                    title: title,
+                    price: price,
+                    description: "測試商品",
+                    imageUrl: image != nil ? "local://temp_image" : "https://picsum.photos/400",
+                    sellerID: "testUser",
+                    createdAt: Date()
+                )
+                self?.viewModel.createProduct(newProduct, image: image)
+                self?.selectedImage = nil
             }
-            
-            let newProduct = Product(
-                id: UUID().uuidString,
-                title: title,
-                price: price,
-                description: "測試商品",
-                imageUrl: self?.selectedImage != nil ? "local://temp_image" : "https://picsum.photos/400",
-                sellerID: "testUser",
-                createdAt: Date()
-            )
-            
-            self?.viewModel.createProduct(newProduct, image: self?.selectedImage)
-            self?.selectedImage = nil
-        }
-        
-        alert.addAction(addAction)
-        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        )
         
         present(alert, animated: true)
     }
     
-    @objc private func choosePhoto() {
-       dismiss(animated: true) { [weak self] in
-           guard let self = self else { return }
-           self.imagePickerManager.showImagePicker(from: self) { image in
-               self.selectedImage = image
-               DispatchQueue.main.async {
-                   self.showAddProductAlert()
-               }
-           }
-       }
+    private func showEditAlert(for product: Product) {
+        // 先取得當前產品的圖片
+        let currentImage = viewModel.getProductImage(for: product.id) ??
+                          UIImage(named: product.imageUrl) // 如果是本地圖片
+        
+        let alert = ProductAlertView.showProductAlert(
+            title: "編輯商品",
+            selectedImage: currentImage, // 使用當前圖片
+            imagePreviewView: imagePreviewView,
+            onChoosePhoto: { [weak self] in
+                self?.dismiss(animated: true) {
+                    guard let self = self else { return }
+                    self.imagePickerManager.showImagePicker(from: self) { image in
+                        self.selectedImage = image
+                        DispatchQueue.main.async {
+                            self.showEditAlert(for: product)
+                        }
+                    }
+                }
+            },
+            onComplete: { [weak self] title, price, image in
+                let updatedProduct = Product(
+                    id: product.id,
+                    title: title,
+                    price: price,
+                    description: product.description,
+                    imageUrl: image != nil ? "local://temp_image" : product.imageUrl,
+                    sellerID: product.sellerID,
+                    createdAt: product.createdAt
+                )
+                self?.viewModel.updateProduct(updatedProduct, image: image)
+                self?.selectedImage = nil
+            }
+        )
+
+        alert.textFields?[0].text = product.title
+        alert.textFields?[1].text = String(product.price)
+        
+        present(alert, animated: true)
     }
-  
+
+//    private func showEditAlert(for product: Product) {
+//        let alert = ProductAlertView.showProductAlert(
+//            title: "編輯商品",
+//            selectedImage: selectedImage,
+//            imagePreviewView: imagePreviewView,
+//            onChoosePhoto: { [weak self] in
+//                self?.dismiss(animated: true) {
+//                    guard let self = self else { return }
+//                    self.imagePickerManager.showImagePicker(from: self) { image in
+//                        self.selectedImage = image
+//                        DispatchQueue.main.async {
+//                            self.showEditAlert(for: product)
+//                        }
+//                    }
+//                }
+//            },
+//            onComplete: { [weak self] title, price, image in
+//                let updatedProduct = Product(
+//                    id: product.id,
+//                    title: title,
+//                    price: price,
+//                    description: product.description,
+//                    imageUrl: image != nil ? "local://temp_image" : product.imageUrl,
+//                    sellerID: product.sellerID,
+//                    createdAt: product.createdAt
+//                )
+//                self?.viewModel.updateProduct(updatedProduct)
+//                self?.selectedImage = nil
+//            }
+//        )
+//        
+//        alert.textFields?[0].text = product.title
+//        alert.textFields?[1].text = String(product.price)
+//        
+//        present(alert, animated: true)
+//    }
     
     
     @objc private func testCreateProduct() {
@@ -249,40 +277,6 @@ extension ProductListViewController: UICollectionViewDelegate, UICollectionViewD
             
             return UIMenu(title: "", children: [editAction, deleteAction])
         }
-    }
-    
-    private func showEditAlert(for product: Product) {
-        let alert = UIAlertController(title: "編輯商品", message: nil, preferredStyle: .alert)
-        
-        alert.addTextField { textField in
-            textField.text = product.title
-        }
-        alert.addTextField { textField in
-            textField.text = String(product.price)
-            textField.keyboardType = .numberPad
-        }
-        
-        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
-        alert.addAction(UIAlertAction(title: "更新", style: .default) { [weak self] _ in
-            guard let title = alert.textFields?[0].text,
-                  let priceText = alert.textFields?[1].text,
-                  let price = Double(priceText)
-            else { return }
-            
-            let updatedProduct = Product(
-                id: product.id,
-                title: title,
-                price: price,
-                description: product.description,
-                imageUrl: product.imageUrl,
-                sellerID: product.sellerID,
-                createdAt: product.createdAt
-            )
-            
-            self?.viewModel.updateProduct(updatedProduct)
-        })
-        
-        present(alert, animated: true)
     }
     
 }
