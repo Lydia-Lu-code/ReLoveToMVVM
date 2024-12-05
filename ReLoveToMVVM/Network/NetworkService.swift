@@ -7,6 +7,17 @@
 
 import Foundation
 
+enum HTTPMethod: String {
+    case get = "GET"
+    case post = "POST"
+    case put = "PUT"
+    case delete = "DELETE"
+}
+
+protocol NetworkServiceProtocol {
+    func request<T: Codable>(endpoint: APIEndpoint, body: Data?, completion: @escaping (Result<T, APIError>) -> Void)
+}
+
 class NetworkService: NetworkServiceProtocol {
     static let shared = NetworkService()
     private let baseURL = "https://your-api-endpoint.com/api/v1"
@@ -16,7 +27,6 @@ class NetworkService: NetworkServiceProtocol {
         self.session = session
     }
     
-    // NetworkService.swift
     func request<T: Codable>(endpoint: APIEndpoint, body: Data? = nil, completion: @escaping (Result<T, APIError>) -> Void) {
         guard let url = URL(string: baseURL + endpoint.path) else {
             completion(.failure(.invalidURL))

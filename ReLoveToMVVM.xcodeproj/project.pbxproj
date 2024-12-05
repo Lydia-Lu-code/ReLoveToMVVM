@@ -16,16 +16,15 @@
 		5CFD59DB2CF5CB30008F09B5 /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59DA2CF5CB30008F09B5 /* Product.swift */; };
 		5CFD59DD2CF5CB3D008F09B5 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59DC2CF5CB3D008F09B5 /* User.swift */; };
 		5CFD59E32CF5CB94008F09B5 /* ProductListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59E22CF5CB94008F09B5 /* ProductListViewModel.swift */; };
-		5CFD59EA2CF5CBFF008F09B5 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59E92CF5CBFF008F09B5 /* NetworkManager.swift */; };
 		5CFD59EC2CF5CC0B008F09B5 /* APIEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59EB2CF5CC0B008F09B5 /* APIEndpoints.swift */; };
 		5CFD59EE2CF5CC79008F09B5 /* ProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59ED2CF5CC79008F09B5 /* ProductCell.swift */; };
 		5CFD59F02CF86FED008F09B5 /* HTMLToJSONParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59EF2CF86FED008F09B5 /* HTMLToJSONParser.swift */; };
 		5CFD59F22D009239008F09B5 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59F12D009239008F09B5 /* NetworkService.swift */; };
 		5CFD59F42D009257008F09B5 /* ProductRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59F32D009257008F09B5 /* ProductRepository.swift */; };
-		5CFD59F62D009A7D008F09B5 /* ImagePickerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59F52D009A7D008F09B5 /* ImagePickerManager.swift */; };
 		5CFD59F82D016AF7008F09B5 /* ProductAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59F72D016AF7008F09B5 /* ProductAlertView.swift */; };
 		5CFD59FA2D017452008F09B5 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59F92D017452008F09B5 /* APIError.swift */; };
 		5CFD59FD2D017763008F09B5 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59FC2D017763008F09B5 /* MockData.swift */; };
+		5CFD59FF2D0197F6008F09B5 /* ImagePickerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59FE2D0197F6008F09B5 /* ImagePickerManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,16 +39,15 @@
 		5CFD59DA2CF5CB30008F09B5 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
 		5CFD59DC2CF5CB3D008F09B5 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		5CFD59E22CF5CB94008F09B5 /* ProductListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductListViewModel.swift; sourceTree = "<group>"; };
-		5CFD59E92CF5CBFF008F09B5 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		5CFD59EB2CF5CC0B008F09B5 /* APIEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIEndpoints.swift; sourceTree = "<group>"; };
 		5CFD59ED2CF5CC79008F09B5 /* ProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCell.swift; sourceTree = "<group>"; };
 		5CFD59EF2CF86FED008F09B5 /* HTMLToJSONParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLToJSONParser.swift; sourceTree = "<group>"; };
 		5CFD59F12D009239008F09B5 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		5CFD59F32D009257008F09B5 /* ProductRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductRepository.swift; sourceTree = "<group>"; };
-		5CFD59F52D009A7D008F09B5 /* ImagePickerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerManager.swift; sourceTree = "<group>"; };
 		5CFD59F72D016AF7008F09B5 /* ProductAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductAlertView.swift; sourceTree = "<group>"; };
 		5CFD59F92D017452008F09B5 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		5CFD59FC2D017763008F09B5 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
+		5CFD59FE2D0197F6008F09B5 /* ImagePickerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,7 +110,7 @@
 			children = (
 				5CFD59C92CF47BF2008F09B5 /* ProductListViewController.swift */,
 				5CFD59F72D016AF7008F09B5 /* ProductAlertView.swift */,
-				5CFD59F52D009A7D008F09B5 /* ImagePickerManager.swift */,
+				5CFD59FE2D0197F6008F09B5 /* ImagePickerManager.swift */,
 				5CFD59ED2CF5CC79008F09B5 /* ProductCell.swift */,
 				5CFD59E02CF5CB6A008F09B5 /* Storyboards */,
 			);
@@ -138,7 +136,6 @@
 		5CFD59E52CF5CBD0008F09B5 /* Network */ = {
 			isa = PBXGroup;
 			children = (
-				5CFD59E92CF5CBFF008F09B5 /* NetworkManager.swift */,
 				5CFD59F12D009239008F09B5 /* NetworkService.swift */,
 				5CFD59EB2CF5CC0B008F09B5 /* APIEndpoints.swift */,
 				5CFD59F92D017452008F09B5 /* APIError.swift */,
@@ -241,11 +238,10 @@
 				5CFD59EC2CF5CC0B008F09B5 /* APIEndpoints.swift in Sources */,
 				5CFD59C62CF47BF2008F09B5 /* AppDelegate.swift in Sources */,
 				5CFD59F02CF86FED008F09B5 /* HTMLToJSONParser.swift in Sources */,
-				5CFD59EA2CF5CBFF008F09B5 /* NetworkManager.swift in Sources */,
-				5CFD59F62D009A7D008F09B5 /* ImagePickerManager.swift in Sources */,
 				5CFD59EE2CF5CC79008F09B5 /* ProductCell.swift in Sources */,
 				5CFD59DD2CF5CB3D008F09B5 /* User.swift in Sources */,
 				5CFD59FA2D017452008F09B5 /* APIError.swift in Sources */,
+				5CFD59FF2D0197F6008F09B5 /* ImagePickerManager.swift in Sources */,
 				5CFD59FD2D017763008F09B5 /* MockData.swift in Sources */,
 				5CFD59F22D009239008F09B5 /* NetworkService.swift in Sources */,
 				5CFD59C82CF47BF2008F09B5 /* SceneDelegate.swift in Sources */,

@@ -16,9 +16,7 @@ class ProductAlertView {
         onChoosePhoto: @escaping () -> Void,
         onComplete: @escaping (String, Double, UIImage?) -> Void
     ) -> UIAlertController {
-//        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
         let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
-                 
         
         // 建立容器視圖
         let container = UIView()
@@ -39,8 +37,8 @@ class ProductAlertView {
         photoButton.setTitle("選擇照片", for: .normal)
         photoButton.translatesAutoresizingMaskIntoConstraints = false
         
-        // 直接使用 UIAction 來處理按鈕點擊
-        let choosePhotoAction = UIAction { _ in
+        // 使用明確的類型
+        let choosePhotoAction = UIAction { [weak imageView] (action: UIAction) in
             onChoosePhoto()
         }
         photoButton.addAction(choosePhotoAction, for: .touchUpInside)
@@ -64,25 +62,25 @@ class ProductAlertView {
         alert.setValue(containerVC, forKey: "contentViewController")
         
         // 添加文字輸入欄位
-         alert.addTextField { textField in
-             textField.placeholder = "商品名稱"
-             textField.autocorrectionType = .no  // 關閉自動校正
-             textField.autocapitalizationType = .none  // 關閉自動大寫
-         }
+        alert.addTextField { textField in
+            textField.placeholder = "商品名稱"
+            textField.autocorrectionType = .no
+            textField.autocapitalizationType = .none
+        }
         
-//        alert.addTextField { $0.placeholder = "商品名稱" }
-//        alert.addTextField {
-//            $0.placeholder = "價格"
-//            $0.keyboardType = .numberPad
-//        }
+        alert.addTextField {
+            $0.placeholder = "價格"
+            $0.keyboardType = .numberPad
+        }
         
         // 添加按鈕動作
         alert.addAction(UIAlertAction(title: "取消", style: .cancel))
-        alert.addAction(UIAlertAction(title: "確定", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "確定", style: .default) { [weak imageView] _ in
             guard let title = alert.textFields?[0].text,
                   let priceText = alert.textFields?[1].text,
                   let price = Double(priceText)
             else { return }
+            // 使用選擇的圖片
             onComplete(title, price, selectedImage)
         })
         
@@ -90,44 +88,4 @@ class ProductAlertView {
     }
 }
 
-////***
-class ImagePickerManager: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-var completion: ((UIImage) -> Void)?
-var viewController: UIViewController?
-
-func showImagePicker(from viewController: UIViewController, completion: @escaping (UIImage) -> Void) {
-    self.viewController = viewController
-    self.completion = completion
-    
-    let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-    
-    if UIImagePickerController.isSourceTypeAvailable(.camera) {
-        actionSheet.addAction(UIAlertAction(title: "拍照", style: .default) { [weak self] _ in
-            self?.presentImagePicker(sourceType: .camera)
-        })
-    }
-    
-    actionSheet.addAction(UIAlertAction(title: "選擇照片", style: .default) { [weak self] _ in
-        self?.presentImagePicker(sourceType: .photoLibrary)
-    })
-    
-    actionSheet.addAction(UIAlertAction(title: "取消", style: .cancel))
-    viewController.present(actionSheet, animated: true)
-}
-
-private func presentImagePicker(sourceType: UIImagePickerController.SourceType) {
-    let picker = UIImagePickerController()
-    picker.delegate = self
-    picker.sourceType = sourceType
-    viewController?.present(picker, animated: true)
-}
-
-func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-    picker.dismiss(animated: true)
-    
-    if let image = info[.originalImage] as? UIImage {
-        completion?(image)
-    }
-}
-}
 

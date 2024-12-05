@@ -1,22 +1,16 @@
 import UIKit
 
 class ProductListViewController: UIViewController {
-
-    private let activityIndicator = UIActivityIndicatorView(style: .large)
-        
-    private let imagePickerManager = ImagePickerManager()
+    // MARK: - Properties
+    private let viewModel: ProductListViewModel
+    private let imagePickerManager: ImagePickerManager
     private var selectedImage: UIImage?
-    private var imagePreviewView: UIImageView?
+    
+    // MARK: - UI Components
+    private let activityIndicator = UIActivityIndicatorView(style: .large)
     
     private lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumInteritemSpacing = 10
-        layout.minimumLineSpacing = 10
-        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
-        
-        let itemWidth = (UIScreen.main.bounds.width - 30) / 2
-        layout.itemSize = CGSize(width: itemWidth, height: itemWidth * 1.5)
-        
+        let layout = createCollectionViewLayout()
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .systemBackground
         cv.register(ProductCell.self, forCellWithReuseIdentifier: ProductCell.identifier)
@@ -25,32 +19,41 @@ class ProductListViewController: UIViewController {
         cv.translatesAutoresizingMaskIntoConstraints = false
         return cv
     }()
-
     
-    private let viewModel: ProductListViewModel = {
-        // 使用 Mock Repository 初始化 ViewModel
-        let mockRepository = MockData.MockProductRepository()
-        return ProductListViewModel(repository: mockRepository)
-    }()
+    // MARK: - Initialization
+    init(viewModel: ProductListViewModel = ProductListViewModel(repository: MockData.MockProductRepository()),
+         imagePickerManager: ImagePickerManager = ImagePickerManager()) {
+        self.viewModel = viewModel
+        self.imagePickerManager = imagePickerManager
+        super.init(nibName: nil, bundle: nil)
+    }
     
+    required init?(coder: NSCoder) {
+        self.viewModel = ProductListViewModel(repository: MockData.MockProductRepository())
+        self.imagePickerManager = ImagePickerManager()
+        super.init(coder: coder)
+    }
+    
+    // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupBindings()
-        setupTestButtons()
-
-        // 直接呼叫 fetchProducts 來獲取 mock 資料
+        setupNavigationBar()
         viewModel.fetchProducts()
-
     }
     
-    
-    
+    // MARK: - Private Methods - Setup
     private func setupUI() {
         title = "二手商品"
         view.backgroundColor = .systemBackground
         
-        // 設置 CollectionView
+        setupCollectionView()
+        setupActivityIndicator()
+        setupRefreshControl()
+    }
+    
+    private func setupCollectionView() {
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -58,19 +61,40 @@ class ProductListViewController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
-        // 設置載入指示器
+    }
+    
+    private func setupActivityIndicator() {
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(activityIndicator)
         NSLayoutConstraint.activate([
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-        
-        // 設置下拉刷新
+    }
+    
+    private func setupRefreshControl() {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         collectionView.refreshControl = refreshControl
+    }
+    
+    private func setupNavigationBar() {
+        let addButton = UIBarButtonItem(barButtonSystemItem: .add,
+                                      target: self,
+                                      action: #selector(showAddProductAlert))
+        navigationItem.rightBarButtonItem = addButton
+    }
+    
+    private func createCollectionViewLayout() -> UICollectionViewLayout {
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumInteritemSpacing = 10
+        layout.minimumLineSpacing = 10
+        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        
+        let itemWidth = (UIScreen.main.bounds.width - 30) / 2
+        layout.itemSize = CGSize(width: itemWidth, height: itemWidth * 1.5)
+        
+        return layout
     }
     
     private func setupBindings() {
@@ -90,51 +114,48 @@ class ProductListViewController: UIViewController {
                 }
             }
         }
-    }
-
-    private func showError(_ message: String) {
-        let alert = UIAlertController(title: "錯誤", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "確定", style: .default))
-        present(alert, animated: true)
+        
+        viewModel.onError = { [weak self] message in
+            self?.showError(message)
+        }
     }
     
+    // MARK: - Private Methods - Actions
     @objc private func refreshData() {
         viewModel.fetchProducts()
-    }
-    
-    private func setupTestButtons() {
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showAddProductAlert))
-        navigationItem.rightBarButtonItem = addButton
     }
     
     @objc private func showAddProductAlert() {
         let alert = ProductAlertView.showProductAlert(
             title: "新增商品",
-            selectedImage: selectedImage,
-            imagePreviewView: imagePreviewView,
+            selectedImage: selectedImage,  // 使用當前選擇的圖片
+            imagePreviewView: nil,
             onChoosePhoto: { [weak self] in
                 self?.dismiss(animated: true) {
                     guard let self = self else { return }
                     self.imagePickerManager.showImagePicker(from: self) { image in
-                        self.selectedImage = image
+                        self.selectedImage = image  // 保存新選擇的圖片
+                        // 重新顯示 alert 並使用新的圖片
                         DispatchQueue.main.async {
-                            self.showAddProductAlert()
+                            self.showAddProductAlert()  // 重新顯示 alert
                         }
                     }
                 }
             },
-            onComplete: { [weak self] title, price, image in
+            onComplete: { [weak self] title, price, _ in  // 這裡使用 _ 因為我們會直接使用 selectedImage
                 let newProduct = Product(
                     id: UUID().uuidString,
                     title: title,
                     price: price,
                     description: "測試商品",
-                    imageUrl: image != nil ? "local://temp_image" : "https://picsum.photos/400",
+                    // 如果有選擇圖片則使用本地路徑
+                    imageUrl: self?.selectedImage != nil ? "local://temp_image" : "https://picsum.photos/400",
                     sellerID: "testUser",
                     createdAt: Date()
                 )
-                self?.viewModel.createProduct(newProduct, image: image)
-                self?.selectedImage = nil
+                // 使用保存的 selectedImage
+                self?.viewModel.createProduct(newProduct, image: self?.selectedImage)
+                self?.selectedImage = nil  // 清除選擇的圖片
             }
         )
         
@@ -142,117 +163,69 @@ class ProductListViewController: UIViewController {
     }
     
     private func showEditAlert(for product: Product) {
-        // 先取得當前產品的圖片
-        let currentImage = viewModel.getProductImage(for: product.id) ??
-                          UIImage(named: product.imageUrl) // 如果是本地圖片
+        // 使用 currentImage 來顯示當前圖片，包括新選擇的圖片
+        let currentImage = selectedImage ?? viewModel.getProductImage(for: product.id)
         
         let alert = ProductAlertView.showProductAlert(
             title: "編輯商品",
-            selectedImage: currentImage, // 使用當前圖片
-            imagePreviewView: imagePreviewView,
+            selectedImage: currentImage,
+            imagePreviewView: nil,
             onChoosePhoto: { [weak self] in
                 self?.dismiss(animated: true) {
                     guard let self = self else { return }
                     self.imagePickerManager.showImagePicker(from: self) { image in
-                        self.selectedImage = image
+                        self.selectedImage = image  // 保存新選擇的圖片
                         DispatchQueue.main.async {
-                            self.showEditAlert(for: product)
+                            self.showEditAlert(for: product)  // 重新顯示編輯視窗
                         }
                     }
                 }
             },
-            onComplete: { [weak self] title, price, image in
+            onComplete: { [weak self] title, price, _ in  // 使用 selectedImage 而不是傳入的 image
                 let updatedProduct = Product(
                     id: product.id,
                     title: title,
                     price: price,
                     description: product.description,
-                    imageUrl: image != nil ? "local://temp_image" : product.imageUrl,
+                    imageUrl: self?.selectedImage != nil ? "local://temp_image" : product.imageUrl,
                     sellerID: product.sellerID,
                     createdAt: product.createdAt
                 )
-                self?.viewModel.updateProduct(updatedProduct, image: image)
-                self?.selectedImage = nil
+                // 使用 selectedImage 更新產品
+                self?.viewModel.updateProduct(updatedProduct, image: self?.selectedImage)
+                self?.selectedImage = nil  // 清除暫存圖片
             }
         )
-
+        
+        // 設定文字欄位
         alert.textFields?[0].text = product.title
         alert.textFields?[1].text = String(product.price)
         
         present(alert, animated: true)
     }
-
-//    private func showEditAlert(for product: Product) {
-//        let alert = ProductAlertView.showProductAlert(
-//            title: "編輯商品",
-//            selectedImage: selectedImage,
-//            imagePreviewView: imagePreviewView,
-//            onChoosePhoto: { [weak self] in
-//                self?.dismiss(animated: true) {
-//                    guard let self = self else { return }
-//                    self.imagePickerManager.showImagePicker(from: self) { image in
-//                        self.selectedImage = image
-//                        DispatchQueue.main.async {
-//                            self.showEditAlert(for: product)
-//                        }
-//                    }
-//                }
-//            },
-//            onComplete: { [weak self] title, price, image in
-//                let updatedProduct = Product(
-//                    id: product.id,
-//                    title: title,
-//                    price: price,
-//                    description: product.description,
-//                    imageUrl: image != nil ? "local://temp_image" : product.imageUrl,
-//                    sellerID: product.sellerID,
-//                    createdAt: product.createdAt
-//                )
-//                self?.viewModel.updateProduct(updatedProduct)
-//                self?.selectedImage = nil
-//            }
-//        )
-//        
-//        alert.textFields?[0].text = product.title
-//        alert.textFields?[1].text = String(product.price)
-//        
-//        present(alert, animated: true)
-//    }
-    
-    
-    @objc private func testCreateProduct() {
-        let newProduct = Product(
-            id: UUID().uuidString,
-            title: "新測試產品",
-            price: 5000,
-            description: "這是一個測試創建的產品",
-            imageUrl: "https://fakeimg.pl/400x400/282828/eae0d0/?text=Test",
-            sellerID: "testUser",
-            createdAt: Date()
-        )
-        
-        viewModel.createProduct(newProduct, image: selectedImage)
+  
+    private func handleImageSelection(completion: @escaping (UIImage) -> Void) {
+        dismiss(animated: true) { [weak self] in
+            guard let self = self else { return }
+            self.imagePickerManager.showImagePicker(from: self) { image in
+                completion(image)
+            }
+        }
     }
     
-    @objc private func testDeleteProduct() {
-        // 刪除第一個產品（如果存在）
-        guard viewModel.numberOfProducts() > 0 else { return }
-        let productToDelete = viewModel.product(at: 0)
-        viewModel.deleteProduct(id: productToDelete.id)
+    private func showError(_ message: String) {
+        let alert = UIAlertController(title: "錯誤", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "確定", style: .default))
+        present(alert, animated: true)
     }
-    
 }
 
 // MARK: - UICollectionView DataSource & Delegate
 extension ProductListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    
-    // 在 UICollectionViewDataSource 方法中
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let count = viewModel.numberOfProducts()
-        print("Number of products: \(count)") // 檢查商品數量
-        return count
+        return viewModel.numberOfProducts()
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell else {
             return UICollectionViewCell()
@@ -271,12 +244,13 @@ extension ProductListViewController: UICollectionViewDelegate, UICollectionViewD
                 self?.showEditAlert(for: product)
             }
             
-            let deleteAction = UIAction(title: "刪除", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+            let deleteAction = UIAction(title: "刪除",
+                                      image: UIImage(systemName: "trash"),
+                                      attributes: .destructive) { [weak self] _ in
                 self?.viewModel.deleteProduct(id: product.id)
             }
             
             return UIMenu(title: "", children: [editAction, deleteAction])
         }
     }
-    
 }

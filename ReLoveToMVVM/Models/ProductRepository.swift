@@ -11,7 +11,6 @@ protocol ProductRepositoryProtocol {
     func fetchProducts(completion: @escaping (Result<[Product], APIError>) -> Void)
     func createProduct(_ product: Product, completion: @escaping (Result<Product, APIError>) -> Void)
     func updateProduct(_ product: Product, completion: @escaping (Result<Product, APIError>) -> Void)
-    //    func deleteProduct(id: String, completion: @escaping (Result<Void, APIError>) -> Void)
     func deleteProduct(id: String, completion: @escaping (Result<Bool, APIError>) -> Void)
 
 }
