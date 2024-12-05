@@ -25,6 +25,8 @@
 		5CFD59FA2D017452008F09B5 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59F92D017452008F09B5 /* APIError.swift */; };
 		5CFD59FD2D017763008F09B5 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59FC2D017763008F09B5 /* MockData.swift */; };
 		5CFD59FF2D0197F6008F09B5 /* ImagePickerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD59FE2D0197F6008F09B5 /* ImagePickerManager.swift */; };
+		5CFD5A012D01AC32008F09B5 /* ProductDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD5A002D01AC32008F09B5 /* ProductDetailViewModel.swift */; };
+		5CFD5A032D01AC6F008F09B5 /* ProductDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFD5A022D01AC6F008F09B5 /* ProductDetailViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +50,8 @@
 		5CFD59F92D017452008F09B5 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		5CFD59FC2D017763008F09B5 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		5CFD59FE2D0197F6008F09B5 /* ImagePickerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerManager.swift; sourceTree = "<group>"; };
+		5CFD5A002D01AC32008F09B5 /* ProductDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDetailViewModel.swift; sourceTree = "<group>"; };
+		5CFD5A022D01AC6F008F09B5 /* ProductDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDetailViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				5CFD59C92CF47BF2008F09B5 /* ProductListViewController.swift */,
+				5CFD5A022D01AC6F008F09B5 /* ProductDetailViewController.swift */,
 				5CFD59F72D016AF7008F09B5 /* ProductAlertView.swift */,
 				5CFD59FE2D0197F6008F09B5 /* ImagePickerManager.swift */,
 				5CFD59ED2CF5CC79008F09B5 /* ProductCell.swift */,
@@ -129,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				5CFD59E22CF5CB94008F09B5 /* ProductListViewModel.swift */,
+				5CFD5A002D01AC32008F09B5 /* ProductDetailViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -237,8 +243,10 @@
 				5CFD59E32CF5CB94008F09B5 /* ProductListViewModel.swift in Sources */,
 				5CFD59EC2CF5CC0B008F09B5 /* APIEndpoints.swift in Sources */,
 				5CFD59C62CF47BF2008F09B5 /* AppDelegate.swift in Sources */,
+				5CFD5A012D01AC32008F09B5 /* ProductDetailViewModel.swift in Sources */,
 				5CFD59F02CF86FED008F09B5 /* HTMLToJSONParser.swift in Sources */,
 				5CFD59EE2CF5CC79008F09B5 /* ProductCell.swift in Sources */,
+				5CFD5A032D01AC6F008F09B5 /* ProductDetailViewController.swift in Sources */,
 				5CFD59DD2CF5CB3D008F09B5 /* User.swift in Sources */,
 				5CFD59FA2D017452008F09B5 /* APIError.swift in Sources */,
 				5CFD59FF2D0197F6008F09B5 /* ImagePickerManager.swift in Sources */,

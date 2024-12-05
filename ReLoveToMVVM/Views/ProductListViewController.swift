@@ -21,18 +21,37 @@ class ProductListViewController: UIViewController {
     }()
     
     // MARK: - Initialization
-    init(viewModel: ProductListViewModel = ProductListViewModel(repository: MockData.MockProductRepository()),
-         imagePickerManager: ImagePickerManager = ImagePickerManager()) {
+    init(viewModel: ProductListViewModel = ProductListViewModel(repository: {
+        let repository = MockData.MockProductRepository()
+        repository.useDetailedProducts()  // 在這裡使用詳細資料
+        return repository
+    }()), imagePickerManager: ImagePickerManager = ImagePickerManager()) {
         self.viewModel = viewModel
         self.imagePickerManager = imagePickerManager
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
-        self.viewModel = ProductListViewModel(repository: MockData.MockProductRepository())
+        let repository = MockData.MockProductRepository()
+        repository.useDetailedProducts()  // 在這裡也要設定
+        self.viewModel = ProductListViewModel(repository: repository)
         self.imagePickerManager = ImagePickerManager()
         super.init(coder: coder)
     }
+    
+//    // MARK: - Initialization
+//    init(viewModel: ProductListViewModel = ProductListViewModel(repository: MockData.MockProductRepository()),
+//         imagePickerManager: ImagePickerManager = ImagePickerManager()) {
+//        self.viewModel = viewModel
+//        self.imagePickerManager = imagePickerManager
+//        super.init(nibName: nil, bundle: nil)
+//    }
+//    
+//    required init?(coder: NSCoder) {
+//        self.viewModel = ProductListViewModel(repository: MockData.MockProductRepository())
+//        self.imagePickerManager = ImagePickerManager()
+//        super.init(coder: coder)
+//    }
     
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
@@ -253,4 +272,14 @@ extension ProductListViewController: UICollectionViewDelegate, UICollectionViewD
             return UIMenu(title: "", children: [editAction, deleteAction])
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let product = viewModel.product(at: indexPath.item)
+        let detailViewModel = ProductDetailViewModel(product: product)
+        let detailVC = ProductDetailViewController(viewModel: detailViewModel)
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
+    
 }
+
+
