@@ -26,10 +26,12 @@ class ProductDetailViewController: UIViewController {
         return stack
     }()
     
-    private let imageView: UIImageView = {
+    private lazy var imageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
+        iv.layer.cornerRadius = 8
+        iv.backgroundColor = .systemGray6
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -62,22 +64,24 @@ class ProductDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        bindViewModel()
+        updateUI()
     }
+    
     
     // MARK: - Setup
     private func setupUI() {
         view.backgroundColor = .systemBackground
         title = viewModel.title
         
+        // 設置 scrollView 和 contentStack
         view.addSubview(scrollView)
         scrollView.addSubview(contentStack)
         
-        setupConstraints()
-        setupContentStack()
-    }
-    
-    private func setupConstraints() {
+        // 添加圖片視圖
+        let imageContainer = UIView()
+        imageContainer.addSubview(imageView)
+        contentStack.addArrangedSubview(imageContainer)
+        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -88,44 +92,31 @@ class ProductDetailViewController: UIViewController {
             contentStack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
             contentStack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
             contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
-        ])
-    }
-    
-    private func setupContentStack() {
-        // 先加入圖片視圖
-        let imageContainer = UIView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.backgroundColor = .systemGray6
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 8
-        
-        imageContainer.addSubview(imageView)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32),
+            
             imageView.topAnchor.constraint(equalTo: imageContainer.topAnchor),
             imageView.leadingAnchor.constraint(equalTo: imageContainer.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: imageContainer.trailingAnchor),
-            imageView.heightAnchor.constraint(equalToConstant: 300), // 設定圖片高度
+            imageView.heightAnchor.constraint(equalToConstant: 300),
             imageView.bottomAnchor.constraint(equalTo: imageContainer.bottomAnchor)
         ])
         
+        setupDetailInfo()
+    }
+    
+    private func updateUI() {
         // 設置圖片
-        if let productImage = viewModel.productImage {
-            imageView.image = productImage
-        } else {
-            imageView.image = UIImage(systemName: "photo")
-        }
-        
-        // 添加到 stack
-        contentStack.addArrangedSubview(imageContainer)
-        
-        // 添加一個分隔線（可選）
-        let separator = createSeparator()
+        imageView.image = viewModel.productImage
+    }
+    
+    private func setupDetailInfo() {
+        // 添加分隔線
+        let separator = UIView()
+        separator.backgroundColor = .systemGray5
+        separator.heightAnchor.constraint(equalToConstant: 1).isActive = true
         contentStack.addArrangedSubview(separator)
-
-        // 其他資訊組件
+        
+        // 添加商品資訊
         let components: [(String, String)] = [
             ("價格", viewModel.price),
             ("商品描述", viewModel.description),
@@ -142,32 +133,6 @@ class ProductDetailViewController: UIViewController {
             contentStack.addArrangedSubview(containerView)
         }
     }
-
-    // 創建分隔線的輔助方法
-    private func createSeparator() -> UIView {
-        let separator = UIView()
-        separator.backgroundColor = .systemGray5
-        separator.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        return separator
-    }
-    
-//    private func setupContentStack() {
-//        let components: [(String, String)] = [
-//            ("價格", viewModel.price),
-//            ("商品描述", viewModel.description),
-//            ("運費", viewModel.shippingFee),
-//            ("商品狀況", viewModel.condition),
-//            ("所在地區", viewModel.location),
-//            ("運送方式", viewModel.deliveryMethods),
-//            ("付款方式", viewModel.paymentMethods),
-//            ("刊登時間", viewModel.createdDate)
-//        ]
-//        
-//        components.forEach { title, content in
-//            let containerView = createInfoView(title: title, content: content)
-//            contentStack.addArrangedSubview(containerView)
-//        }
-//    }﻿
     
     private func createInfoView(title: String, content: String) -> UIView {
         let container = UIView()
@@ -201,7 +166,4 @@ class ProductDetailViewController: UIViewController {
         return container
     }
     
-    private func bindViewModel() {
-        // 如果需要動態更新資料，可以在這裡添加綁定
-    }
 }

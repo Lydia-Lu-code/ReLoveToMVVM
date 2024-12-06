@@ -11,16 +11,24 @@ import UIKit
 class ProductDetailViewModel {
     private let product: Product
     private let repository: ProductRepositoryProtocol
-    
-//    var productImage: UIImage?
+    private let image: UIImage?
     
     // 用於綁定 UI 更新
     var onDataUpdated: (() -> Void)?
     var onError: ((String) -> Void)?
     
-    init(product: Product, repository: ProductRepositoryProtocol = ProductRepository()) {
+    // MARK: - Initialization
+    init(product: Product,
+         productImage: UIImage?,
+         repository: ProductRepositoryProtocol = ProductRepository()) {
         self.product = product
+        self.image = productImage
         self.repository = repository
+    }
+    
+    // 取得圖片
+    var productImage: UIImage? {
+        return image ?? UIImage(systemName: "photo")
     }
     
     // MARK: - Data Access Methods
@@ -43,16 +51,6 @@ class ProductDetailViewModel {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return "刊登日期：\(formatter.string(from: product.createdAt))"
-    }
-    
-    var productImage: UIImage? {
-        if product.imageUrl.hasPrefix("local://"),
-           let image = getLocalImage(for: product.id) {
-            return image
-        } else {
-            // 這裡可以添加網路圖片載入邏輯
-            return UIImage(systemName: "photo")
-        }
     }
     
     private func getLocalImage(for productId: String) -> UIImage? {
